@@ -25,7 +25,7 @@ const NextLink = ({ goal }: { goal: number }) => {
       <p className={`text-zinc-500 dark:text-zinc-400 text-xl lg:text-2xl xl:text-3xl font-bold mb-3`}>Next</p>
       <p
         className={clsx(
-          'text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-gray-900 dark:text-gray-100 nextTextHoverColor cursor-pointer'
+          'text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-gray-900 dark:text-gray-100 nextTextHoverColor cursor-pointer w-fit'
         )}
         onClick={handleNext}
       >

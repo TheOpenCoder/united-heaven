@@ -3,6 +3,7 @@ import TargetAccordianCard from './_components/TargetAccordianCard'
 import GoalHeader from './_components/GoalHeader'
 import SummaryCard from '@/components/SummaryCard'
 import NextLink from './_components/NextLink'
+import Footer from '../../../../components/Footer'
 
 async function getTargetData(goalId: number) {
   const res = await fetch(`https://unstats.un.org/sdgapi/v1/sdg/Goal/${goalId}/Target/List?includechildren=true`, {
@@ -79,9 +80,11 @@ const SdgGoal = async ({
         </div>
       </div>
 
-      <div className='bg-gray-200 dark:bg-zinc-800 py-32 lg:py-36'>
+      <div className='bg-gray-200 dark:bg-zinc-800 py-36 lg:py-44'>
         <NextLink goal={goal} />
       </div>
+
+      <Footer />
     </div>
   )
 }
