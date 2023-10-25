@@ -1,6 +1,7 @@
-const Logo = ({ className }: { className?: string }) => (
+const Logo = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
   <svg
     className={className}
+    style={style}
     width='1024'
     height='1024'
     viewBox='0 0 1024 1024'

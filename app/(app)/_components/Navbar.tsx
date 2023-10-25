@@ -6,11 +6,12 @@ import Button from '@/components/Button'
 import { HiBars3 } from 'react-icons/hi2'
 import clsx from 'clsx'
 import Logo from '@/components/Logo'
-import { useSelectedLayoutSegment } from 'next/navigation'
+import { useSelectedLayoutSegments } from 'next/navigation'
 import { toggleDarkMode } from '@/utils/theme'
 import Image from 'next/image'
 import Link from 'next/link'
 import { CgDarkMode } from 'react-icons/cg'
+import SDGGoals from '@/constants/SDGGoals'
 
 const navigation = [
   { name: 'Home', href: '/', activeSegment: '(home)' },
@@ -20,7 +21,10 @@ const navigation = [
 ]
 
 export default function Navbar() {
-  const segment = useSelectedLayoutSegment()
+  const segments = useSelectedLayoutSegments()
+  const segment = segments[0]
+  const goalId = segment === 'goals' ? segments[1] : null
+
   const isAuthenticated = true
 
   return (
@@ -48,8 +52,23 @@ export default function Navbar() {
               </div>
               <div className='flex flex-1 items-center justify-center sm:items-stretch sm:justify-start'>
                 <Link href='/' className='flex flex-shrink-0 items-center'>
-                  <Logo className='h-9 w-auto fill-black dark:fill-white' />
-                  {/* <p className='font-[Ailerons] text-xl ml-4 hidden md:block'>United Heaven</p> */}
+                  <Logo
+                    className={clsx('h-9 w-auto', !goalId && '!fill-black dark:!fill-white')}
+                    style={{
+                      fill: goalId ? SDGGoals[Number(goalId) - 1].color : 'black',
+                    }}
+                  />
+                  {/* <p
+                    className={clsx(
+                      'font-[Ailerons] text-2xl ml-4 hidden md:block',
+                      !goalId && '!text-black dark:!text-white'
+                    )}
+                    style={{
+                      color: goalId ? SDGGoals[Number(goalId) - 1].color : 'black'
+                    }}
+                  >
+                    United Heaven
+                  </p> */}
                 </Link>
                 <div className='hidden sm:ml-6 md:ml-10 sm:block'>
                   <div className='flex space-x-4'>
