@@ -13,7 +13,7 @@ import Link from 'next/link'
 import { CgDarkMode } from 'react-icons/cg'
 
 const navigation = [
-  { name: 'Home', href: '/', activeSegment: null },
+  { name: 'Home', href: '/', activeSegment: '(home)' },
   { name: 'Prime', href: '/prime', activeSegment: 'prime' },
   { name: 'Insight', href: '/insight', activeSegment: 'insight' },
   { name: 'Donate us', href: 'https://www.buymeacoffee.com/unitedheaven', external: true },
@@ -27,8 +27,13 @@ export default function Navbar() {
     <Disclosure as='nav'>
       {({ open }) => (
         <>
-          <div className={clsx('px-2 sm:px-6 lg:px-8', !open && 'border-b border-zinc-300 dark:border-zinc-700')}>
-            <div className='relative flex h-16 items-center justify-between'>
+          <div
+            className={clsx(
+              'px-2 sm:px-6 lg:px-8 fixed w-full z-50 bg-zinc-100 dark:bg-zinc-900',
+              !open && 'border-b border-zinc-300 dark:border-zinc-700'
+            )}
+          >
+            <div className='relative flex h-16 items-center justify-between max-w-7xl mx-auto'>
               <div className='absolute inset-y-0 left-0 flex items-center sm:hidden'>
                 {/* Mobile menu button*/}
                 <Disclosure.Button className='relative inline-flex items-center justify-center rounded-md p-2 text-gray-500 dark:text-gray-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white focus-ring'>
