@@ -7,11 +7,11 @@ import { HiBars3 } from 'react-icons/hi2'
 import clsx from 'clsx'
 import Logo from '@/components/Logo'
 import { useSelectedLayoutSegments } from 'next/navigation'
-import { toggleDarkMode } from '@/utils/theme'
 import Image from 'next/image'
 import Link from 'next/link'
 import { CgDarkMode } from 'react-icons/cg'
 import SDGGoals from '@/constants/SDGGoals'
+import { useColorMode } from '@/context/ColorModeContext'
 
 const navigation = [
   { name: 'Home', href: '/', activeSegment: '(home)' },
@@ -22,6 +22,7 @@ const navigation = [
 
 export default function Navbar() {
   const segments = useSelectedLayoutSegments()
+  const { toggleColorMode } = useColorMode()
   const segment = segments[0]
   const goalId = segment === 'goals' ? segments[1] : null
 
@@ -96,7 +97,7 @@ export default function Navbar() {
                   <>
                     <button
                       type='button'
-                      onClick={toggleDarkMode}
+                      onClick={toggleColorMode}
                       className='relative rounded-full bg-zinc-200 dark:bg-zinc-950 p-1 text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white focus-visible-ring'
                     >
                       <span className='absolute -inset-1.5' />

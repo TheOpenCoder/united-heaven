@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ColorModeProvider } from '@/context/ColorModeContext'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='en'>
-      <body className='bg-zinc-100 dark:bg-zinc-900 overscroll-none'>{children}</body>
+      <body className='bg-zinc-100 dark:bg-zinc-900 overscroll-none'>
+        <ColorModeProvider>{children}</ColorModeProvider>
+      </body>
     </html>
   )
 }
