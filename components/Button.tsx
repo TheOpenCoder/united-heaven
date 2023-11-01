@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 const variantStyles = {
   green:
-    'bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-600 focus:ring-emerald-700 text-white',
+    'bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-600 focus:ring-emerald-600 dark:focus:ring-emerald-700 text-white',
   outline:
     'border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-200 dark:hover:bg-zinc-800',
 }

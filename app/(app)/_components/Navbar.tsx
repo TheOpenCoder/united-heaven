@@ -1,6 +1,5 @@
 'use client'
-import { Fragment } from 'react'
-import { Disclosure, Menu, Transition } from '@headlessui/react'
+import { Disclosure } from '@headlessui/react'
 import { HiX } from 'react-icons/hi'
 import Button from '@/components/Button'
 import { HiBars3 } from 'react-icons/hi2'
@@ -12,6 +11,9 @@ import Link from 'next/link'
 import { CgDarkMode } from 'react-icons/cg'
 import SDGGoals from '@/constants/SDGGoals'
 import { useColorMode } from '@/context/ColorModeContext'
+import AuthModal from '@/components/modal/AuthModal'
+import { useWallet } from '@txnlab/use-wallet'
+import ProfileFlyout from './ProfileFlyout'
 
 const navigation = [
   { name: 'Home', href: '/', activeSegment: '(home)' },
@@ -23,10 +25,9 @@ const navigation = [
 export default function Navbar() {
   const segments = useSelectedLayoutSegments()
   const { toggleColorMode } = useColorMode()
+  const { activeAddress } = useWallet()
   const segment = segments[0]
   const goalId = segment === 'goals' ? segments[1] : null
-
-  const isAuthenticated = true
 
   return (
     <Disclosure as='nav'>
@@ -93,90 +94,35 @@ export default function Navbar() {
                 </div>
               </div>
               <div className='absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0'>
-                {isAuthenticated ? (
-                  <>
-                    <button
-                      type='button'
-                      onClick={toggleColorMode}
-                      className='relative rounded-full bg-zinc-200 dark:bg-zinc-950 p-1 text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white focus-visible-ring'
-                    >
-                      <span className='absolute -inset-1.5' />
-                      <span className='sr-only'>View notifications</span>
-                      <CgDarkMode className='h-6 w-6' aria-hidden='true' />
-                    </button>
-
-                    {/* Profile dropdown */}
-                    <Menu as='div' className='relative ml-3'>
-                      <div>
-                        <Menu.Button className='relative flex rounded-full bg-zinc-200 dark:bg-zinc-800 text-sm focus-ring'>
-                          <span className='absolute -inset-1.5' />
-                          <span className='sr-only'>Open user menu</span>
-                          <Image
-                            className='h-8 w-8 rounded-full'
-                            src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-                            alt=''
-                            width={32}
-                            height={32}
-                          />
-                        </Menu.Button>
-                      </div>
-                      <Transition
-                        as={Fragment}
-                        enter='transition ease-out duration-100'
-                        enterFrom='transform opacity-0 scale-95'
-                        enterTo='transform opacity-100 scale-100'
-                        leave='transition ease-in duration-75'
-                        leaveFrom='transform opacity-100 scale-100'
-                        leaveTo='transform opacity-0 scale-95'
-                      >
-                        <Menu.Items className='absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-black py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
-                          <Menu.Item>
-                            {({ active }) => (
-                              <Link
-                                href='/profile'
-                                className={clsx(
-                                  active ? 'bg-zinc-100 dark:bg-zinc-900' : '',
-                                  'block px-4 py-2 text-sm text-gray-700 dark:text-zinc-200'
-                                )}
-                              >
-                                Your Profile
-                              </Link>
-                            )}
-                          </Menu.Item>
-                          <Menu.Item>
-                            {({ active }) => (
-                              <Link
-                                href='/settings'
-                                className={clsx(
-                                  active ? 'bg-zinc-100 dark:bg-zinc-900' : '',
-                                  'block px-4 py-2 text-sm text-gray-700 dark:text-zinc-200'
-                                )}
-                              >
-                                Settings
-                              </Link>
-                            )}
-                          </Menu.Item>
-                          <Menu.Item>
-                            {({ active }) => (
-                              <Link
-                                href='#'
-                                className={clsx(
-                                  active ? 'bg-zinc-100 dark:bg-zinc-900' : '',
-                                  'block px-4 py-2 text-sm text-gray-700 dark:text-zinc-200'
-                                )}
-                              >
-                                Sign out
-                              </Link>
-                            )}
-                          </Menu.Item>
-                        </Menu.Items>
-                      </Transition>
-                    </Menu>
-                  </>
+                <button
+                  type='button'
+                  onClick={toggleColorMode}
+                  className='relative rounded-full bg-zinc-200 dark:bg-zinc-950 p-1 mr-4 text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white focus-visible-ring'
+                >
+                  <span className='absolute -inset-1.5' />
+                  <span className='sr-only'>Toggle Theme</span>
+                  <CgDarkMode className='h-6 w-6' aria-hidden='true' />
+                </button>
+                {activeAddress ? (
+                  // Profile dropdown
+                  <ProfileFlyout>
+                    <div className='relative flex rounded-full bg-zinc-200 dark:bg-zinc-800 text-sm focus-ring mt-1'>
+                      <span className='sr-only'>Open user menu</span>
+                      <Image
+                        className='h-8 w-8 rounded-full'
+                        src='/images/defaultDP.jpeg'
+                        alt=''
+                        width={32}
+                        height={32}
+                      />
+                    </div>
+                  </ProfileFlyout>
                 ) : (
-                  <Button type='button' variant='green' className='px-5'>
-                    Sign in
-                  </Button>
+                  <AuthModal>
+                    <Button type='button' variant='green' className='px-5'>
+                      Sign in
+                    </Button>
+                  </AuthModal>
                 )}
               </div>
             </div>
