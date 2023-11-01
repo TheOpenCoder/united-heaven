@@ -17,6 +17,8 @@ const nextConfig = {
       use: ['json-loader'],
     })
 
+    config.externals.push('bufferutil', 'utf-8-validate')
+
     return config
   },
 }
