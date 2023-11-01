@@ -3,9 +3,18 @@ import SDGGoals from '@/constants/SDGGoals'
 import Link from 'next/link'
 import Image from 'next/image'
 import Button from './Button'
+import { useAuth } from '@/context/AuthContext'
+import { useState } from 'react'
 
 const SDGFollowCard = ({ goalId }: { goalId: number }) => {
-  const isFollowing = false
+  const [isFollowing, setIsFollowing] = useState(false)
+  const { authRun } = useAuth()
+
+  const handleFollow = () => {
+    authRun(() => {
+      setIsFollowing(!isFollowing)
+    })
+  }
 
   return (
     <div className='flex p-4'>
@@ -22,7 +31,7 @@ const SDGFollowCard = ({ goalId }: { goalId: number }) => {
         <Link href={`/goals/${goalId}`}>
           <p className='font-semibold text-gray-900 dark:text-gray-100 line-clamp-2'>{SDGGoals[goalId - 1].name}</p>
         </Link>
-        <Button className='py-1 px-2 w-fit h-fit' variant='outline'>
+        <Button className='py-1 px-2 w-fit h-fit' variant='outline' onClick={handleFollow}>
           {isFollowing ? 'Unfollow' : 'Follow'}
         </Button>
       </div>

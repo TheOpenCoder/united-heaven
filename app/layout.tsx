@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { ColorModeProvider } from '@/context/ColorModeContext'
+import { AuthProvider } from '@/context/AuthContext'
 import WalletProvider from '@/provider/WalletProvider'
 import ReactQueryProvider from '@/provider/ReactQueryProvider'
 import { Analytics } from '@vercel/analytics/react'
@@ -17,7 +18,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className='bg-zinc-100 dark:bg-zinc-900 overscroll-none'>
         <ReactQueryProvider>
           <ColorModeProvider>
-            <WalletProvider>{children}</WalletProvider>
+            <WalletProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </WalletProvider>
           </ColorModeProvider>
         </ReactQueryProvider>
         <Analytics />

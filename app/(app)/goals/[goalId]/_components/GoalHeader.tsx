@@ -2,10 +2,12 @@
 import { useState } from 'react'
 import SDGGoals from '@/constants/SDGGoals'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
 
 const GoalHeader = ({ goal }: { goal: number }) => {
   const router = useRouter()
   const [following, setFollowing] = useState(false)
+  const { authRun } = useAuth()
 
   return (
     <div
@@ -53,14 +55,14 @@ const GoalHeader = ({ goal }: { goal: number }) => {
               {following ? (
                 <button
                   className='rounded-full text-white px-4 py-2 bg-opacity-30 bg-white hover:bg-opacity-50 focus:outline-none'
-                  onClick={() => setFollowing(false)}
+                  onClick={() => authRun(() => setFollowing(false))}
                 >
                   Following
                 </button>
               ) : (
                 <button
                   className='rounded-full text-white px-4 py-2 bg-blue-500 hover:bg-blue-600 focus:outline-none'
-                  onClick={() => setFollowing(true)}
+                  onClick={() => authRun(() => setFollowing(true))}
                 >
                   Follow
                 </button>

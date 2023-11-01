@@ -1,5 +1,5 @@
 'use client'
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useRef, useState, useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { useWallet, Provider, PROVIDER_ID } from '@txnlab/use-wallet'
 import { HiX } from 'react-icons/hi'
@@ -9,16 +9,37 @@ const subText: Partial<Record<PROVIDER_ID, string>> = {
   pera: 'Popular',
 }
 
-const AuthModal = ({ children }: { children: React.ReactNode }) => {
+const AuthModal = ({
+  children,
+  manualOpen,
+  setManualOpen,
+}: {
+  children?: React.ReactNode
+  manualOpen?: boolean
+  setManualOpen?: (_open: boolean) => void
+}) => {
   const cancelButtonRef = useRef(null)
-  const [open, setOpen] = useState(false)
+  const [open, setOpenState] = useState<boolean>(false)
   const { providers } = useWallet()
+
+  const setOpen = (state: boolean) => {
+    setOpenState(state)
+    if (setManualOpen) {
+      setManualOpen(state)
+    }
+  }
+
+  useEffect(() => {
+    if (typeof manualOpen !== 'undefined') {
+      setOpenState(manualOpen)
+    }
+  }, [manualOpen])
 
   const isKmd = (provider: Provider) => provider.metadata.name.toLowerCase() === 'kmd'
 
   return (
     <>
-      <div onClick={() => setOpen(true)}>{children}</div>
+      {children && <div onClick={() => setOpen(true)}>{children}</div>}
       <Transition.Root show={open} as={Fragment}>
         <Dialog as='div' className='relative z-50' initialFocus={cancelButtonRef} onClose={setOpen}>
           <Transition.Child

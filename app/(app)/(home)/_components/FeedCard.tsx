@@ -12,6 +12,7 @@ import Image from 'next/image'
 import { AiOutlineHeart, AiFillHeart, AiOutlineLink } from 'react-icons/ai'
 import { TbLocationFilled } from 'react-icons/tb'
 import { BiDonateHeart, BiSolidDonateHeart } from 'react-icons/bi'
+import { useAuth } from '@/context/AuthContext'
 
 import { MdHandshake, MdOutlineHandshake } from 'react-icons/md'
 import Link from 'next/link'
@@ -61,6 +62,7 @@ const FeedCard: FC<FeedCardProps> = ({
   const [liked, setLiked] = useState(false)
   const [donated, setDonated] = useState(false)
   const [participate, setParticipate] = useState(false)
+  const { authRun } = useAuth()
 
   return (
     <div className='w-full overflow-hidden py-8 px-4'>
@@ -133,7 +135,7 @@ const FeedCard: FC<FeedCardProps> = ({
       {type === 'action' && (
         <div className='flex items-center space-x-4 pt-6 '>
           {/* donation */}
-          <button className='group flex items-center' onClick={() => setDonated(!donated)}>
+          <button className='group flex items-center' onClick={() => authRun(() => setDonated(!donated))}>
             <div className='group-hover:bg-emerald-600/10 dark:group-hover:bg-emerald-500/10 rounded-full '>
               {donated ? (
                 <BiSolidDonateHeart className='w-5 h-5 m-1.5 text-emerald-600 dark:text-emerald-500' />
@@ -154,7 +156,7 @@ const FeedCard: FC<FeedCardProps> = ({
           </button>
 
           {/* participate */}
-          <button className='group flex items-center' onClick={() => setParticipate(!participate)}>
+          <button className='group flex items-center' onClick={() => authRun(() => setParticipate(!participate))}>
             <div className='group-hover:bg-blue-600/10 dark:group-hover:bg-blue-500/10 rounded-full '>
               {participate ? (
                 <MdHandshake className='w-5 h-5 m-1.5 text-blue-600 dark:text-blue-500' />
@@ -175,7 +177,7 @@ const FeedCard: FC<FeedCardProps> = ({
           </button>
 
           {/* like */}
-          <button className='group flex items-center' onClick={() => setLiked(!liked)}>
+          <button className='group flex items-center' onClick={() => authRun(() => setLiked(!liked))}>
             <div className='group-hover:bg-rose-600/10 dark:group-hover:bg-rose-500/10 rounded-full '>
               {liked ? (
                 <AiFillHeart className='w-5 h-5 m-1.5 text-rose-600 dark:text-rose-500' />
