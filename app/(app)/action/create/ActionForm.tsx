@@ -12,8 +12,12 @@ import SDGGoals from '@/constants/SDGGoals'
 import DatePicker from 'react-datepicker'
 import { useColorMode } from '@/context/ColorModeContext'
 import Button from '@/components/Button'
+import { getActionClient } from '@/lib/actionClient'
+import { useWallet } from '@txnlab/use-wallet'
+import { convertAlgosToMicroalgos } from '@/utils/convert'
 import 'react-datepicker/dist/react-datepicker.css'
 import './datePicker.css'
+import * as algokit from '@algorandfoundation/algokit-utils'
 
 const goalsOption = SDGGoals.map((goal) => ({
   name: goal.name,
@@ -25,6 +29,9 @@ type FormData = {
   title: string
   description: string
   image: File | null
+  isParticipatory: boolean
+  isDonatable: boolean
+  amountToRaise: string
   isOnline: boolean
   location?: string
   onlineLink?: string
@@ -38,6 +45,9 @@ const initialFormData: FormData = {
   description: '',
   image: null,
   isOnline: false,
+  isParticipatory: false,
+  isDonatable: false,
+  amountToRaise: '',
   location: '',
   onlineLink: '',
   goals: [],
@@ -48,7 +58,10 @@ const initialFormData: FormData = {
 const ActionForm = () => {
   const [formData, setFormData] = useState(initialFormData)
   const [actionImage, setActionImage] = useState('')
+  const [loading, setLoading] = useState<boolean>(false)
   const { colorMode } = useColorMode()
+  const { activeAddress, signer } = useWallet()
+  const sender = { signer, addr: activeAddress! }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, limit?: number) => {
     const { name, value } = e.target
@@ -118,6 +131,20 @@ const ActionForm = () => {
       return false
     }
 
+    if (formData.startDate > formData.endDate) {
+      toast.error(`Start Date should be before End Date`, {
+        id: 'action-start-date-before-end-date',
+      })
+      return false
+    }
+
+    if (formData.isDonatable && formData.amountToRaise === '') {
+      toast.error(`Amount to Raise is required`, {
+        id: 'action-amount-to-raise-required',
+      })
+      return false
+    }
+
     if (formData.isOnline && formData.onlineLink === '') {
       toast.error(`Online Link is required`, {
         id: 'action-online-link-required',
@@ -135,15 +162,46 @@ const ActionForm = () => {
     return true
   }
 
-  const createAction = () => {
+  const createAction = async () => {
     if (!checkFormValidity()) {
       return
     }
 
-    const actionContractFields = {
-      startDate: Math.floor(formData.startDate!.getTime() / 1000),
+    setLoading(true)
+
+    try {
+      const contractClient = getActionClient({
+        sender,
+      })
+
+      // create action contract
+      await contractClient.create.createApplication({})
+
+      // fund action contract
+      await contractClient.appClient.fundAppAccount({ amount: algokit.microAlgos(convertAlgosToMicroalgos(4)) })
+
+      await contractClient.bootstrap(
+        {
+          startDate: Math.floor(formData.startDate!.getTime() / 1000),
+          endDate: Math.floor(formData.endDate!.getTime() / 1000),
+          goal: convertAlgosToMicroalgos(Number(formData.amountToRaise)),
+        },
+        {
+          sendParams: {
+            fee: algokit.microAlgos(2_000),
+          },
+        }
+      )
+
+      const appRef = await contractClient.appClient.getAppReference()
+    } catch (e) {
+      console.log('error', e)
+      toast.error(`Something went wrong. Please try again later.`, {
+        id: 'action-create-error',
+      })
+    } finally {
+      setLoading(false)
     }
-    console.log(actionContractFields)
   }
 
   return (
@@ -288,18 +346,108 @@ const ActionForm = () => {
         <Switch.Group as='div' className='flex items-center justify-between'>
           <span className='flex flex-grow flex-col'>
             <Switch.Label as='span' className='text-sm font-medium leading-6 text-black dark:text-white' passive>
-              Is Online?
+              Is this action participatory?
             </Switch.Label>
             <Switch.Description as='span' className='text-sm text-zinc-500'>
-              Is your action happening online?
+              Check this if you want people to participate and volunteer in your action.
             </Switch.Description>
+          </span>
+          <Switch
+            checked={formData.isParticipatory}
+            onChange={(e) => setFormData({ ...formData, isParticipatory: e })}
+            className={clsx(
+              formData.isParticipatory ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-800',
+              'relative ml-4 inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 ring-offset-zinc-100 dark:ring-offset-zinc-900'
+            )}
+          >
+            <span
+              aria-hidden='true'
+              className={clsx(
+                formData.isParticipatory ? 'translate-x-5' : 'translate-x-0',
+                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+              )}
+            />
+          </Switch>
+        </Switch.Group>
+      </div>
+
+      <div>
+        <Switch.Group as='div' className='flex items-center justify-between'>
+          <span className='flex flex-grow flex-col'>
+            <Switch.Label as='span' className='text-sm font-medium leading-6 text-black dark:text-white' passive>
+              Do you want to accept donations?
+            </Switch.Label>
+            <Switch.Description as='span' className='text-sm text-zinc-500'>
+              You&apos;ll receive donations in USDC from UH members.
+            </Switch.Description>
+          </span>
+          <Switch
+            checked={formData.isDonatable}
+            onChange={(e) => setFormData({ ...formData, isDonatable: e })}
+            className={clsx(
+              formData.isDonatable ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-800',
+              'relative ml-4 inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 ring-offset-zinc-100 dark:ring-offset-zinc-900'
+            )}
+          >
+            <span
+              aria-hidden='true'
+              className={clsx(
+                formData.isDonatable ? 'translate-x-5' : 'translate-x-0',
+                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+              )}
+            />
+          </Switch>
+        </Switch.Group>
+      </div>
+
+      {formData.isDonatable && (
+        <div>
+          <label htmlFor='amountToRaise' className='block text-sm font-medium leading-6 text-black dark:text-white'>
+            Amount to Raise
+          </label>
+          <div className='mt-2 relative'>
+            <div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
+              <Image
+                className='h-5 w-5'
+                src='https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=026'
+                alt=''
+                width={24}
+                height={24}
+              />
+            </div>
+            <input
+              type='text'
+              name='amountToRaise'
+              id='amountToRaise'
+              value={formData.amountToRaise}
+              onChange={(e) => {
+                // only allow positive numbers to be entered
+                const re = /^[0-9\b]+$/
+                if (e.target.value === '' || re.test(e.target.value)) {
+                  setFormData({ ...formData, amountToRaise: e.target.value })
+                }
+              }}
+              required
+              className='input-ui !pl-10'
+              placeholder='How much do you want to raise in USDC?'
+            />
+          </div>
+        </div>
+      )}
+
+      <div>
+        <Switch.Group as='div' className='flex items-center justify-between'>
+          <span className='flex flex-grow flex-col'>
+            <Switch.Label as='span' className='text-sm font-medium leading-6 text-black dark:text-white' passive>
+              Is your action happening online?
+            </Switch.Label>
           </span>
           <Switch
             checked={formData.isOnline}
             onChange={(e) => setFormData({ ...formData, isOnline: e })}
             className={clsx(
               formData.isOnline ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-800',
-              'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 ring-offset-zinc-100 dark:ring-offset-zinc-900'
+              'relative ml-4 inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 ring-offset-zinc-100 dark:ring-offset-zinc-900'
             )}
           >
             <span
@@ -327,7 +475,7 @@ const ActionForm = () => {
               onChange={handleChange}
               required
               className='input-ui'
-              placeholder='Website link where participants can join'
+              placeholder='Where is your action happening?'
             />
           </div>
         </div>
@@ -351,8 +499,18 @@ const ActionForm = () => {
         </div>
       )}
 
-      <Button type='button' variant='green' className='px-5 w-full' onClick={createAction}>
-        Create Action
+      <Button type='button' variant='green' className='px-5 w-full' onClick={createAction} disabled={loading}>
+        {loading ? (
+          <div className='flex items-center justify-center'>
+            <div
+              className='inline-block h-4 w-4 mr-2 animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]'
+              role='status'
+            />
+            <p>Creating Action...</p>
+          </div>
+        ) : (
+          <p>Create Action</p>
+        )}
       </Button>
     </div>
   )

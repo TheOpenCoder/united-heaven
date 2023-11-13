@@ -1,7 +1,4 @@
 import React from 'react'
-// import "react-datepicker/dist/react-datepicker.css";
-// import ActionFields from './ActionFields';
-// import './datePicker.css';
 import ActionForm from './ActionForm'
 
 const CreateAction = () => {
