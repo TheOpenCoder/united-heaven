@@ -6,6 +6,7 @@ import { ellipseAddress } from '@/utils/common'
 import Link from 'next/link'
 import Image from 'next/image'
 import useWalletBalance from '@/hooks/useWalletBalance'
+import DarkModeSwitch from './DarkModeSwitch'
 
 const ProfileFlyout = ({ children }: { children: React.ReactNode }) => {
   const { activeAddress, providers } = useWallet()
@@ -81,6 +82,10 @@ const ProfileFlyout = ({ children }: { children: React.ReactNode }) => {
             </div>
             <div className='bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 py-4'>
               <ul role='list'>
+                <div className='hover:bg-zinc-200 dark:hover:bg-zinc-900 font-semibold px-6 py-2 text-sm text-gray-700 dark:text-zinc-200 flex items-center justify-between'>
+                  Enable Dark Mode
+                  <DarkModeSwitch />
+                </div>
                 <Link
                   href='/profile'
                   className='hover:bg-zinc-200 dark:hover:bg-zinc-900 block font-semibold px-6 py-2 text-sm text-gray-700 dark:text-zinc-200'

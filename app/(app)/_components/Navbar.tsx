@@ -1,6 +1,6 @@
 'use client'
 import { Disclosure } from '@headlessui/react'
-import { HiX } from 'react-icons/hi'
+import { HiX, HiPlus } from 'react-icons/hi'
 import Button from '@/components/Button'
 import { HiBars3 } from 'react-icons/hi2'
 import clsx from 'clsx'
@@ -8,9 +8,7 @@ import Logo from '@/components/Logo'
 import { useSelectedLayoutSegments } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { CgDarkMode } from 'react-icons/cg'
 import SDGGoals from '@/constants/SDGGoals'
-import { useColorMode } from '@/context/ColorModeContext'
 import AuthModal from '@/components/modal/AuthModal'
 import { useWallet } from '@txnlab/use-wallet'
 import ProfileFlyout from './ProfileFlyout'
@@ -24,7 +22,6 @@ const navigation = [
 
 export default function Navbar() {
   const segments = useSelectedLayoutSegments()
-  const { toggleColorMode } = useColorMode()
   const { activeAddress } = useWallet()
   const segment = segments[0]
   const goalId = segment === 'goals' ? segments[1] : null
@@ -94,29 +91,29 @@ export default function Navbar() {
                 </div>
               </div>
               <div className='absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0'>
-                <button
-                  type='button'
-                  onClick={toggleColorMode}
-                  className='relative rounded-full bg-zinc-200 dark:bg-zinc-950 p-1 mr-4 text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white focus-visible-ring'
-                >
-                  <span className='absolute -inset-1.5' />
-                  <span className='sr-only'>Toggle Theme</span>
-                  <CgDarkMode className='h-6 w-6' aria-hidden='true' />
-                </button>
                 {activeAddress ? (
-                  // Profile dropdown
-                  <ProfileFlyout>
-                    <div className='relative flex rounded-full bg-zinc-200 dark:bg-zinc-800 text-sm focus-ring mt-1'>
-                      <span className='sr-only'>Open user menu</span>
-                      <Image
-                        className='h-8 w-8 rounded-full'
-                        src='/images/defaultDP.jpeg'
-                        alt=''
-                        width={32}
-                        height={32}
-                      />
-                    </div>
-                  </ProfileFlyout>
+                  <>
+                    <Button href='/action/create' variant='green' className='mr-4 hidden sm:block' size='sm'>
+                      <div className='flex items-center '>
+                        <HiPlus className='mr-2 text-lg' />
+                        <p>New action</p>
+                      </div>
+                    </Button>
+
+                    {/* Profile dropdown */}
+                    <ProfileFlyout>
+                      <div className='relative flex rounded-full bg-zinc-200 dark:bg-zinc-800 text-sm focus-ring mt-1'>
+                        <span className='sr-only'>Open user menu</span>
+                        <Image
+                          className='h-8 w-8 rounded-full'
+                          src='/images/defaultDP.jpeg'
+                          alt=''
+                          width={32}
+                          height={32}
+                        />
+                      </div>
+                    </ProfileFlyout>
+                  </>
                 ) : (
                   <AuthModal>
                     <Button type='button' variant='green' className='px-5'>
@@ -147,6 +144,12 @@ export default function Navbar() {
                   {item.name}
                 </Disclosure.Button>
               ))}
+              <Disclosure.Button as={Button} variant='green' href='/action/create' className='w-full' size='sm'>
+                <div className='flex items-center justify-center'>
+                  <HiPlus className='mr-2 text-lg' />
+                  <p>New action</p>
+                </div>
+              </Disclosure.Button>
             </div>
           </Disclosure.Panel>
         </>

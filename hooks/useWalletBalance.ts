@@ -9,11 +9,11 @@ export default function useWalletBalance() {
   const [walletAvailableBalance, setWalletAvailableBalance] = useState<string | null>(null)
   const [usdcBalance, setUsdcBalance] = useState<string | null>(null)
 
-  const { activeAccount } = useWallet()
+  const { activeAddress } = useWallet()
 
   const getAccountInfo = async () => {
-    if (!activeAccount) throw new Error('No selected account.')
-    const accountInfo = await algodClient.accountInformation(activeAccount.address).do()
+    if (!activeAddress) throw new Error('No selected account.')
+    const accountInfo = await algodClient.accountInformation(activeAddress).do()
 
     return accountInfo
   }
@@ -24,9 +24,9 @@ export default function useWalletBalance() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['balance', activeAccount?.address],
+    queryKey: ['balance', activeAddress],
     queryFn: getAccountInfo,
-    enabled: !!activeAccount?.address,
+    enabled: !!activeAddress,
     refetchInterval: 30000,
   })
 

@@ -1,6 +1,8 @@
 import algosdk from 'algosdk'
-import { NODE_TOKEN, NODE_URL, NODE_PORT } from '@/constants/env'
+import { getAlgodConfigFromEnvironment } from '@/utils/network'
 
-const algodClient = new algosdk.Algodv2(NODE_TOKEN, NODE_URL, NODE_PORT)
+const algodConfig = getAlgodConfigFromEnvironment()
+
+const algodClient = new algosdk.Algodv2(algodConfig.token, algodConfig.server, algodConfig.port)
 
 export default algodClient

@@ -4,6 +4,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { useWallet, Provider, PROVIDER_ID } from '@txnlab/use-wallet'
 import { HiX } from 'react-icons/hi'
 import Image from 'next/image'
+import { MdOutlineDeveloperMode } from 'react-icons/md'
 
 const subText: Partial<Record<PROVIDER_ID, string>> = {
   pera: 'Popular',
@@ -92,7 +93,7 @@ const AuthModal = ({
                           }}
                         >
                           <div className='flex items-center'>
-                            {!isKmd(provider) && (
+                            {!isKmd(provider) ? (
                               <Image
                                 alt={`wallet_icon_${provider.metadata.id}`}
                                 src={provider.metadata.icon}
@@ -100,6 +101,8 @@ const AuthModal = ({
                                 width={40}
                                 height={40}
                               />
+                            ) : (
+                              <MdOutlineDeveloperMode className='text-2xl text-emerald-600' />
                             )}
                             <p className='ml-4'>{isKmd(provider) ? 'LocalNet Wallet' : provider.metadata.name}</p>
                           </div>
