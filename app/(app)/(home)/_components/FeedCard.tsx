@@ -11,6 +11,7 @@ import clsx from 'clsx'
 import Image from 'next/image'
 import { AiOutlineHeart, AiFillHeart, AiOutlineLink } from 'react-icons/ai'
 import { TbLocationFilled } from 'react-icons/tb'
+import { HiOutlineMegaphone } from 'react-icons/hi2'
 import { BiDonateHeart, BiSolidDonateHeart } from 'react-icons/bi'
 import { useAuth } from '@/context/AuthContext'
 import DonateModal from '@/components/modal/DonateModal'
@@ -18,6 +19,7 @@ import ParticipateModal from '@/components/modal/ParticipateModal'
 
 import { MdHandshake, MdOutlineHandshake } from 'react-icons/md'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
 
 interface FeedCardProps {
   actionId?: number
@@ -67,6 +69,24 @@ const FeedCard: FC<FeedCardProps> = ({
   const [isParticipateModalOpen, setIsParticipateModalOpen] = useState(false)
   const [participate, setParticipate] = useState(false)
   const { authRun } = useAuth()
+
+  const handleShare = async () => {
+    const shareData = {
+      text: heading,
+      url: window.location.href,
+    }
+    try {
+      await navigator.share(shareData)
+    } catch (err: any) {
+      const shareToast = 'shareToast'
+      if (err.name !== 'AbortError') {
+        navigator.clipboard.writeText(shareData.url)
+        toast.success('Copied to clipboard', {
+          id: shareToast,
+        })
+      }
+    }
+  }
 
   return (
     <div className='w-full overflow-hidden py-8 px-4'>
@@ -137,7 +157,7 @@ const FeedCard: FC<FeedCardProps> = ({
       </div>
 
       {type === 'action' && (
-        <div className='flex items-center space-x-4 pt-6 '>
+        <div className='flex items-center justify-around flex-wrap pt-6'>
           {/* donation */}
           <button
             className='group flex items-center'
@@ -210,8 +230,21 @@ const FeedCard: FC<FeedCardProps> = ({
             </p>
           </button>
 
+          {/* Updates */}
+          <Link className='group flex items-center' href={`/action/${actionId}#updates`} scroll={true}>
+            <div className='group-hover:bg-indigo-600/10 dark:group-hover:bg-indigo-500/10 rounded-full '>
+              <HiOutlineMegaphone className='w-5 h-5 m-1.5 text-zinc-500 dark:text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-500' />
+            </div>
+            <p className='text-sm text-zinc-500 dark:text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-500'>
+              12
+            </p>
+          </Link>
+
           {/* share */}
-          <button className='hover:bg-teal-600/10 dark:hover:bg-teal-500/10 rounded-full group cursor-pointer'>
+          <button
+            className='hover:bg-teal-600/10 dark:hover:bg-teal-500/10 rounded-full group cursor-pointer'
+            onClick={handleShare}
+          >
             <IoIosShareAlt className='w-5 h-5 m-1.5 text-zinc-500 dark:text-zinc-400 group-hover:text-teal-600 dark:group-hover:text-teal-500' />
           </button>
         </div>
