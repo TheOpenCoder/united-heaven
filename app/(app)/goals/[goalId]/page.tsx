@@ -51,7 +51,7 @@ const SdgGoal = async ({
             type='action'
             heading='Distributing free foods to people in need'
             image='https://pbs.twimg.com/media/EB_L4EGXUAAq3sU.jpg'
-            clickableCardUrl='/feed/actions/1'
+            clickableCardUrl='/feed/action/1'
           />
           <SummaryCard
             type='news'
@@ -63,7 +63,7 @@ const SdgGoal = async ({
             type='action'
             heading='Secretly providing blankets to homeless people'
             image='https://i2.wp.com/www.udayfoundation.org/wp-content/uploads/2017/11/blanket-donation-drive-2017.jpg?w=1224&ssl=1'
-            clickableCardUrl='/feed/actions/1'
+            clickableCardUrl='/feed/action/1'
           />
           <SummaryCard
             type='event'

@@ -7,7 +7,7 @@ const MouseOverlayWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <OverlayCard
       position={{ left: position.x + 'px', top: position.y - 140 + 'px' }}
-      className='-translate-x-1/2 z-[100]'
+      className='-translate-x-1/2 z-[100] no-scrollbar'
     >
       {children}
     </OverlayCard>

@@ -4,7 +4,7 @@ import { HiX, HiPlus } from 'react-icons/hi'
 import Button from '@/components/Button'
 import { HiBars3 } from 'react-icons/hi2'
 import clsx from 'clsx'
-import Logo from '@/components/Logo'
+// import Logo from '@/components/Logo'
 import { useSelectedLayoutSegments } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -17,7 +17,6 @@ const navigation = [
   { name: 'Home', href: '/', activeSegment: '(home)' },
   { name: 'Prime', href: '/prime', activeSegment: 'prime' },
   { name: 'Insight', href: '/insight', activeSegment: 'insight' },
-  { name: 'Donate us', href: 'https://www.buymeacoffee.com/unitedheaven', external: true },
 ]
 
 export default function Navbar() {
@@ -51,23 +50,20 @@ export default function Navbar() {
               </div>
               <div className='flex flex-1 items-center justify-center sm:items-stretch sm:justify-start'>
                 <Link href='/' className='flex flex-shrink-0 items-center'>
-                  <Logo
+                  {/* <Logo
                     className={clsx('h-9 w-auto', !goalId && '!fill-black dark:!fill-white')}
                     style={{
                       fill: goalId ? SDGGoals[Number(goalId) - 1].color : 'black',
                     }}
-                  />
-                  {/* <p
-                    className={clsx(
-                      'font-[Ailerons] text-2xl ml-4 hidden md:block',
-                      !goalId && '!text-black dark:!text-white'
-                    )}
+                  /> */}
+                  <p
+                    className={clsx('font-[Ailerons] text-xl md:text-2xl', !goalId && '!text-black dark:!text-white')}
                     style={{
-                      color: goalId ? SDGGoals[Number(goalId) - 1].color : 'black'
+                      color: goalId ? SDGGoals[Number(goalId) - 1].color : 'black',
                     }}
                   >
                     United Heaven
-                  </p> */}
+                  </p>
                 </Link>
                 <div className='hidden sm:ml-6 md:ml-10 sm:block'>
                   <div className='flex space-x-4'>
@@ -75,7 +71,6 @@ export default function Navbar() {
                       <Link
                         key={item.name}
                         href={item.href}
-                        target={item.external ? '_blank' : '_self'}
                         className={clsx(
                           item.activeSegment === segment
                             ? 'bg-zinc-300 dark:bg-zinc-950 text-black dark:text-white'
@@ -125,14 +120,13 @@ export default function Navbar() {
             </div>
           </div>
 
-          <Disclosure.Panel className='sm:hidden'>
+          <Disclosure.Panel className='sm:hidden pt-16'>
             <div className='space-y-1 px-2 pb-3 pt-2 border-b border-zinc-300 dark:border-zinc-700'>
               {navigation.map((item) => (
                 <Disclosure.Button
                   key={item.name}
                   as={Link}
                   href={item.href}
-                  target={item.external ? '_blank' : '_self'}
                   className={clsx(
                     item.activeSegment === segment
                       ? 'bg-zinc-300 dark:bg-zinc-950 text-black dark:text-white'
@@ -144,11 +138,15 @@ export default function Navbar() {
                   {item.name}
                 </Disclosure.Button>
               ))}
-              <Disclosure.Button as={Button} variant='green' href='/action/create' className='w-full' size='sm'>
-                <div className='flex items-center justify-center'>
-                  <HiPlus className='mr-2 text-lg' />
-                  <p>New action</p>
-                </div>
+              <Disclosure.Button
+                as={Button}
+                variant='green'
+                href='/action/create'
+                className='flex items-center justify-center'
+                size='sm'
+              >
+                <HiPlus className='mr-2 text-lg' />
+                <p>New action</p>
               </Disclosure.Button>
             </div>
           </Disclosure.Panel>

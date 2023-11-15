@@ -22,13 +22,13 @@ const HomeLayout = ({ children }: { children: React.ReactNode }) => {
           type='action'
           heading='Clean Marina Beach on 12 dec morning'
           image='https://picsum.photos/200/200'
-          clickableCardUrl='/actions/1'
+          clickableCardUrl='/action/1'
         />
         <SummaryCard
           type='charity'
           heading='Clean Marina Beach on 12 dec morning'
           image='https://picsum.photos/200/200'
-          clickableCardUrl='/actions/1'
+          clickableCardUrl='/action/1'
         />
       </aside>
     </div>
