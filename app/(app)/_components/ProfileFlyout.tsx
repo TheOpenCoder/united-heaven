@@ -109,13 +109,13 @@ const ProfileFlyout = ({ children }: { children: React.ReactNode }) => {
                   <DarkModeSwitch />
                 </div>
                 <Link
-                  href='/profile'
+                  href='#'
                   className='hover:bg-zinc-200 dark:hover:bg-zinc-900 block font-semibold px-6 py-2 text-sm text-gray-700 dark:text-zinc-200'
                 >
                   Edit Profile
                 </Link>
                 <Link
-                  href='/profile'
+                  href='#'
                   className='hover:bg-zinc-200 dark:hover:bg-zinc-900 block font-semibold px-6 py-2 text-sm text-gray-700 dark:text-zinc-200'
                 >
                   Settings
