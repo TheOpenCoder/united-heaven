@@ -4,10 +4,46 @@ import ResizableTextarea from '@/components/ResizableTextarea'
 import Image from 'next/image'
 import Button from '@/components/Button'
 import WithdrawModal from '@/components/modal/WithdrawModal'
+import axios from 'axios'
+import { API_URL } from '@/constants/env'
+import toast from 'react-hot-toast'
+import { revalidateActionById } from '@/app/actions'
 
-const UpdateInput = ({ currentAmount }: { currentAmount: number }) => {
+const UpdateInput = ({
+  currentAmount,
+  actionId,
+  contractId,
+}: {
+  currentAmount: number
+  actionId: string
+  contractId: string
+}) => {
   const [update, setUpdate] = useState('')
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const postUpdate = async () => {
+    if (update.length === 0) {
+      toast.error('Update cannot be empty')
+      return
+    }
+
+    setLoading(true)
+    try {
+      await axios.post(`${API_URL}/actions/${actionId}/progress`, {
+        message: update,
+      })
+      await revalidateActionById(actionId)
+      toast.success('Update posted')
+      setUpdate('')
+    } catch (err: any) {
+      console.log(err)
+
+      toast.error(err.response.data.error || 'Failed to post update')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className='border-b border-zinc-300 dark:border-zinc-700 mb-6 px-4'>
@@ -31,12 +67,16 @@ const UpdateInput = ({ currentAmount }: { currentAmount: number }) => {
         <Button className='mb-4 px-4 !rounded-full' variant='outline' onClick={() => setIsWithdrawModalOpen(true)}>
           Withdraw
         </Button>
-        <Button className='mb-4 px-4 !rounded-full'>Post Update</Button>
+        <Button className='mb-4 px-4 !rounded-full' disabled={loading} onClick={postUpdate}>
+          {loading ? 'Posting...' : 'Post Update'}
+        </Button>
       </div>
       <WithdrawModal
         manualOpen={isWithdrawModalOpen}
         setManualOpen={setIsWithdrawModalOpen}
         currentAmount={currentAmount}
+        actionId={actionId}
+        contractId={contractId}
       />
     </div>
   )

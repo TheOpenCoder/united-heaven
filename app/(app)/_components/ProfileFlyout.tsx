@@ -7,11 +7,30 @@ import Link from 'next/link'
 import Image from 'next/image'
 import useWalletBalance from '@/hooks/useWalletBalance'
 import DarkModeSwitch from './DarkModeSwitch'
+import toast from 'react-hot-toast'
 
 const ProfileFlyout = ({ children }: { children: React.ReactNode }) => {
   const { activeAddress, providers } = useWallet()
 
   const { data } = useWalletBalance()
+
+  const handleShare = async () => {
+    const shareData = {
+      text: activeAddress,
+      url: activeAddress,
+    }
+    try {
+      await navigator.share(shareData)
+    } catch (err: any) {
+      const toastId = 'shareAddressToast'
+      if (err.name !== 'AbortError') {
+        navigator.clipboard.writeText(shareData.url || '')
+        toast.success('Copied address to clipboard', {
+          id: toastId,
+        })
+      }
+    }
+  }
 
   return (
     <Popover className='relative'>
@@ -29,7 +48,10 @@ const ProfileFlyout = ({ children }: { children: React.ReactNode }) => {
         <Popover.Panel className='absolute right-0 z-10 mt-2 -mr-1 flex w-screen max-w-max'>
           <div className='w-screen max-w-xs md:max-w-sm flex-auto overflow-hidden rounded-xl bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm leading-6 shadow-xl ring-1 ring-gray-900/5'>
             <div>
-              <Link href={'/profile'} className='group block flex-shrink-0 hover:bg-zinc-50 dark:hover:bg-zinc-700 p-6'>
+              <div
+                className='group block flex-shrink-0 hover:bg-zinc-50 dark:hover:bg-zinc-700 p-6'
+                onClick={handleShare}
+              >
                 <div className='flex items-center'>
                   <div>
                     <Image
@@ -42,10 +64,10 @@ const ProfileFlyout = ({ children }: { children: React.ReactNode }) => {
                   </div>
                   <div className='ml-3'>
                     <p className='text-sm font-medium'>{ellipseAddress(activeAddress)}</p>
-                    <p className='text-xs font-medium text-zinc-500 dark:text-zinc-400'>View profile</p>
+                    <p className='text-xs font-medium text-zinc-500 dark:text-zinc-400'>Copy address</p>
                   </div>
                 </div>
-              </Link>
+              </div>
               <div className='border-t mx-4 border-gray-200 dark:border-zinc-900' />
               <div className='p-6 space-y-4'>
                 <div className='flex items-center'>

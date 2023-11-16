@@ -27,6 +27,21 @@
   width: 85px;
 }
 
+.react-datepicker__day--disabled {
+  color: var(--main-text); /* Change the text color for muted dates */
+  background: var(--main-bg-hover); /* Change the background color for muted dates */
+  cursor: not-allowed;
+  opacity: 50%;
+  border-radius: 16%;
+}
+
+.react-datepicker__time-list-item--disabled {
+  color: var(--main-text); /* Change the text color for muted dates */
+  background: var(--main-bg-hover); /* Change the background color for muted dates */
+  cursor: not-allowed;
+  opacity: 50%;
+}
+
 .react-datepicker__navigation--next--with-time:not(.react-datepicker__navigation--next--with-today-button) {
   right: 90px;
 }

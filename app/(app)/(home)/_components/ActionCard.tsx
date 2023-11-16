@@ -99,7 +99,7 @@ const ActionCard = ({
       } catch (err: any) {
         toast.error(err.response.data.error)
         setLiked(true)
-        setFollowersCount(followersCount + 1)
+        setFollowersCount(followersCount)
       }
     } else {
       try {
@@ -109,7 +109,7 @@ const ActionCard = ({
       } catch (err: any) {
         toast.error(err.response.data.error)
         setLiked(false)
-        setFollowersCount(followersCount - 1)
+        setFollowersCount(followersCount)
       }
     }
   }
@@ -117,7 +117,7 @@ const ActionCard = ({
   return (
     <div className='w-full overflow-hidden py-8 px-4'>
       <div className='mb-4'>
-        <Link href={`/profile/${creator.id}`} className='flex items-center space-x-4 w-fit'>
+        <div className='flex items-center space-x-4 w-fit'>
           <Image
             src='/images/defaultDP.jpeg'
             alt={`user ${creator.username} profile picture`}
@@ -129,7 +129,7 @@ const ActionCard = ({
             <span className='font-semibold text-zinc-900 dark:text-zinc-100'>{creator.username}</span>
             <span className='text-zinc-500 dark:text-zinc-400 text-xs'>{convertToReadableDate(createdAt)}</span>
           </div>
-        </Link>
+        </div>
       </div>
       <Link href={clickableCardUrl}>
         <img src={image} className='mb-4 w-full rounded-lg object-cover' alt='image' />

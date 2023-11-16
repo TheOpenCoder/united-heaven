@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, forwardRef } from 'react'
 import { HiOutlineX } from 'react-icons/hi'
 import clsx from 'clsx'
 import Image from 'next/image'
@@ -45,6 +45,14 @@ type FormData = {
   endDate: Date | null
 }
 
+// Calculate the date/time that is 1 hour from now
+const startDateMin = new Date()
+startDateMin.setHours(startDateMin.getHours() + 1)
+
+// Calculate the date/time that is 1 hour from now
+const endDateMin = new Date()
+endDateMin.setHours(endDateMin.getHours() + 2)
+
 const initialFormData: FormData = {
   title: '',
   description: '',
@@ -56,8 +64,8 @@ const initialFormData: FormData = {
   location: '',
   onlineLink: '',
   goals: [],
-  startDate: new Date(),
-  endDate: new Date(),
+  startDate: startDateMin,
+  endDate: endDateMin,
 }
 
 const ActionForm = () => {
@@ -272,6 +280,18 @@ const ActionForm = () => {
     }
   }
 
+  const CustomDateInput = forwardRef<
+    HTMLInputElement,
+    {
+      value?: string
+      onClick?: () => void
+    }
+  >(({ value, onClick }, ref) => (
+    <input className='input-ui mt-2 w-full' onClick={onClick} value={value ?? ''} readOnly ref={ref} />
+  ))
+
+  CustomDateInput.displayName = 'CustomDateInput'
+
   return (
     <div className='space-y-10'>
       <Dropzone
@@ -387,8 +407,15 @@ const ActionForm = () => {
           wrapperClassName='w-full'
           dateFormat='MM/dd/yyyy h:mm aa'
           showPopperArrow={false}
-          showTimeSelect
           allowSameDay
+          minDate={startDateMin}
+          customInput={<CustomDateInput />}
+          showTimeSelect
+          filterTime={(time) => {
+            const now = new Date()
+            const oneHourAhead = new Date(now.getTime() + 60 * 60 * 1000) // 1 hour ahead of current time
+            return time >= oneHourAhead
+          }}
           placeholderText='Click to select date'
         />
       </div>
@@ -405,6 +432,13 @@ const ActionForm = () => {
           dateFormat='MM/dd/yyyy h:mm aa'
           showPopperArrow={false}
           showTimeSelect
+          customInput={<CustomDateInput />}
+          minDate={endDateMin}
+          filterTime={(time) => {
+            const now = new Date()
+            const oneHourAhead = new Date(now.getTime() + 60 * 60 * 1500) // 1 hour 30 ahead of current time
+            return time >= oneHourAhead
+          }}
           allowSameDay
           placeholderText='Click to select date'
         />

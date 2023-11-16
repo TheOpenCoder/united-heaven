@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidateTag } from 'next/cache'
+import { revalidateTag, revalidatePath } from 'next/cache'
 
 export async function revalidateFeed() {
   revalidateTag('feed')
@@ -8,4 +8,8 @@ export async function revalidateFeed() {
 
 export async function revalidateGoalFollow() {
   revalidateTag('goalFollow')
+}
+
+export async function revalidateActionById(id: string) {
+  revalidatePath(`/(app)/(home)/action/${id}`, 'page')
 }

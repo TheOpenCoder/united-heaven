@@ -1,4 +1,4 @@
-import { format as dateFormat, parseISO, differenceInDays } from 'date-fns'
+import { format as dateFormat, parseISO, differenceInDays, formatDistanceToNow } from 'date-fns'
 
 export const convertToReadableDate = (dateString: string, format?: string): string => {
   const date = parseISO(dateString)
@@ -11,4 +11,9 @@ export const calculateDaysToGo = (dateString: string): number => {
 
   const diffDays = differenceInDays(futureDate, currentDate)
   return diffDays
+}
+
+export const formatDateToRelativeTime = (isoDateString: string): string => {
+  const date = parseISO(isoDateString)
+  return formatDistanceToNow(date, { addSuffix: true })
 }

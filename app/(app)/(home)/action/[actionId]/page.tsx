@@ -38,6 +38,8 @@ const Action = async ({
           creator={action.creator}
           currentAmount={action.currentContractValue}
           isCreator={action.isCreator}
+          id={action.id}
+          contractId={action.contractId}
         />
       </div>
     </div>

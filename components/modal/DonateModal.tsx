@@ -127,7 +127,6 @@ const DonateModal = ({
       setDonationsCount(totalDonationAmount + donationAmount)
     } catch (err: any) {
       toast.error(err.response.data.error || err.message || 'Failed to donate')
-      setDonated(false)
     } finally {
       setLoading(false)
       setOpen(false)
@@ -218,8 +217,15 @@ const DonateModal = ({
                         {totalDonationAmount + donationAmount > goal && (
                           <p className='text-emerald-600 absolute right-0 bottom-full text-2xl font-bold mb-1'>+</p>
                         )}
+
                         <div
-                          className=' bg-emerald-600 h-3 rounded-full absolute left-0 top-0'
+                          className=' bg-emerald-600 h-3 rounded-full absolute left-0 top-0 z-20'
+                          style={{
+                            width: `${Math.min((totalDonationAmount / goal) * 100, 100)}%`,
+                          }}
+                        />
+                        <div
+                          className=' bg-emerald-700 h-3 rounded-full absolute left-0 top-0 z-10'
                           style={{
                             width: `${Math.min(((totalDonationAmount + donationAmount) / goal) * 100, 100)}%`,
                           }}
