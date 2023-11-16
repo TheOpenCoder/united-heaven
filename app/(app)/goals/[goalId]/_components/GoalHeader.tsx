@@ -3,11 +3,37 @@ import { useState } from 'react'
 import SDGGoals from '@/constants/SDGGoals'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import axios from 'axios'
+import { API_URL } from '@/constants/env'
+import toast from 'react-hot-toast'
+import { revalidateGoalFollow } from '@/app/actions'
 
-const GoalHeader = ({ goal }: { goal: number }) => {
+const GoalHeader = ({ goal, isFollowing }: { goal: number; isFollowing: boolean }) => {
   const router = useRouter()
-  const [following, setFollowing] = useState(false)
+  const [following, setFollowing] = useState(isFollowing)
   const { authRun } = useAuth()
+
+  const followGoal = async () => {
+    try {
+      setFollowing(true)
+      await axios.post(`${API_URL}/sdgs/${goal}/follow`)
+      revalidateGoalFollow()
+    } catch (err: any) {
+      setFollowing(false)
+      toast.error('Failed to follow goal')
+    }
+  }
+
+  const unfollowGoal = async () => {
+    try {
+      setFollowing(false)
+      await axios.post(`${API_URL}/sdgs/${goal}/unfollow`)
+      revalidateGoalFollow()
+    } catch (err: any) {
+      setFollowing(true)
+      toast.error('Failed to unfollow goal')
+    }
+  }
 
   return (
     <div
@@ -55,14 +81,14 @@ const GoalHeader = ({ goal }: { goal: number }) => {
               {following ? (
                 <button
                   className='rounded-full text-white px-4 py-2 bg-opacity-30 bg-white hover:bg-opacity-50 focus:outline-none'
-                  onClick={() => authRun(() => setFollowing(false))}
+                  onClick={() => authRun(() => unfollowGoal())}
                 >
                   Following
                 </button>
               ) : (
                 <button
                   className='rounded-full text-white px-4 py-2 bg-blue-500 hover:bg-blue-600 focus:outline-none'
-                  onClick={() => authRun(() => setFollowing(true))}
+                  onClick={() => authRun(() => followGoal())}
                 >
                   Follow
                 </button>

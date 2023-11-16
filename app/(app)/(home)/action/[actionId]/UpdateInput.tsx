@@ -3,9 +3,11 @@ import { useState } from 'react'
 import ResizableTextarea from '@/components/ResizableTextarea'
 import Image from 'next/image'
 import Button from '@/components/Button'
+import WithdrawModal from '@/components/modal/WithdrawModal'
 
-const UpdateInput = () => {
+const UpdateInput = ({ currentAmount }: { currentAmount: number }) => {
   const [update, setUpdate] = useState('')
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
 
   return (
     <div className='border-b border-zinc-300 dark:border-zinc-700 mb-6 px-4'>
@@ -25,9 +27,17 @@ const UpdateInput = () => {
           placeholder='Post your update here'
         />
       </div>
-      <div className='flex justify-end'>
+      <div className='flex justify-end space-x-2'>
+        <Button className='mb-4 px-4 !rounded-full' variant='outline' onClick={() => setIsWithdrawModalOpen(true)}>
+          Withdraw
+        </Button>
         <Button className='mb-4 px-4 !rounded-full'>Post Update</Button>
       </div>
+      <WithdrawModal
+        manualOpen={isWithdrawModalOpen}
+        setManualOpen={setIsWithdrawModalOpen}
+        currentAmount={currentAmount}
+      />
     </div>
   )
 }

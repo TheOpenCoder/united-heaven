@@ -6,7 +6,7 @@ import { IoIosShareAlt } from 'react-icons/io'
 import SDGTags from './SDGTags'
 import clsx from 'clsx'
 import Image from 'next/image'
-import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
+import { AiOutlineHeart, AiFillHeart, AiOutlineLink } from 'react-icons/ai'
 import { TbLocationFilled } from 'react-icons/tb'
 import { HiOutlineMegaphone } from 'react-icons/hi2'
 import { BiDonateHeart, BiSolidDonateHeart } from 'react-icons/bi'
@@ -14,11 +14,13 @@ import { useAuth } from '@/context/AuthContext'
 import DonateModal from '@/components/modal/DonateModal'
 import ParticipateModal from '@/components/modal/ParticipateModal'
 import { convertToReadableDate } from '@/utils/date'
-
+import { FaGlobeAmericas } from 'react-icons/fa'
 import { MdHandshake, MdOutlineHandshake } from 'react-icons/md'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { actionData } from '@/types/action'
+import axios from 'axios'
+import { API_URL } from '@/constants/env'
 
 interface ListProps {
   text?: string
@@ -52,12 +54,19 @@ const ActionCard = ({
   totalParticipantCount,
   updatedAt,
   withdrawals,
+  onlineUrl,
+  contractId,
 }: actionData) => {
   const [liked, setLiked] = useState(isFollowing)
   const [donated, setDonated] = useState(isDonated)
   const [participate, setParticipate] = useState(isParticipating)
   const [isDonationModalOpen, setIsDonationModalOpen] = useState(false)
   const [isParticipateModalOpen, setIsParticipateModalOpen] = useState(false)
+
+  // count
+  const [participantsCount, setParticipantsCount] = useState(totalParticipantCount)
+  const [donationsCount, setDonationsCount] = useState(totalDonationAmount)
+  const [followersCount, setFollowersCount] = useState(totalFollowerCount)
 
   const { authRun } = useAuth()
 
@@ -80,6 +89,30 @@ const ActionCard = ({
   }
 
   const clickableCardUrl = `/action/${id}`
+
+  const handleFollow = async () => {
+    if (liked) {
+      try {
+        setLiked(false)
+        setFollowersCount(followersCount - 1)
+        await axios.post(`${API_URL}/actions/${id}/unfollow`)
+      } catch (err: any) {
+        toast.error(err.response.data.error)
+        setLiked(true)
+        setFollowersCount(followersCount + 1)
+      }
+    } else {
+      try {
+        setLiked(true)
+        setFollowersCount(followersCount + 1)
+        await axios.post(`${API_URL}/actions/${id}/follow`)
+      } catch (err: any) {
+        toast.error(err.response.data.error)
+        setLiked(false)
+        setFollowersCount(followersCount - 1)
+      }
+    }
+  }
 
   return (
     <div className='w-full overflow-hidden py-8 px-4'>
@@ -114,7 +147,7 @@ const ActionCard = ({
         <SDGTags goals={SDGs} />
 
         <div className='space-y-4 ml-1'>
-          {/* {<List icon={FaGlobeAmericas} text='Online' />} */}
+          {onlineUrl && <List icon={FaGlobeAmericas} text='Online' />}
 
           {startDate && (
             <List
@@ -127,72 +160,91 @@ const ActionCard = ({
             <List
               onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${location}`, '_blank')}
               icon={TbLocationFilled}
-              // text={location}
-              text='Marina Beach, chennai, IN'
+              text={location}
             />
           )}
 
-          {/* {url && <List onClick={() => window.open(url, '_blank')} icon={AiOutlineLink} text={url} />} */}
+          {onlineUrl && <List onClick={() => window.open(onlineUrl, '_blank')} icon={AiOutlineLink} text={onlineUrl} />}
         </div>
       </div>
 
       <div className='flex items-center justify-around flex-wrap pt-6'>
         {/* donation */}
-        <button
-          className='group flex items-center'
-          onClick={() => authRun(() => setIsDonationModalOpen(!isDonationModalOpen))}
-        >
-          <div className='group-hover:bg-emerald-600/10 dark:group-hover:bg-emerald-500/10 rounded-full '>
-            {donated ? (
-              <BiSolidDonateHeart className='w-5 h-5 m-1.5 text-emerald-600 dark:text-emerald-500' />
-            ) : (
-              <BiDonateHeart className='w-5 h-5 m-1.5 text-zinc-500 dark:text-zinc-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-500' />
-            )}
-          </div>
-          <p
-            className={clsx(
-              'text-sm',
-              donated
-                ? 'text-emerald-600 dark:text-emerald-500'
-                : 'text-zinc-500 dark:text-zinc-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-500'
-            )}
+        {isDonatable && (
+          <button
+            className='group flex items-center'
+            onClick={() => authRun(() => setIsDonationModalOpen(!isDonationModalOpen))}
           >
-            {totalDonationAmount && `${totalDonationAmount} $`}
-          </p>
-        </button>
+            <div className='group-hover:bg-emerald-600/10 dark:group-hover:bg-emerald-500/10 rounded-full '>
+              {donated ? (
+                <BiSolidDonateHeart className='w-5 h-5 m-1.5 text-emerald-600 dark:text-emerald-500' />
+              ) : (
+                <BiDonateHeart className='w-5 h-5 m-1.5 text-zinc-500 dark:text-zinc-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-500' />
+              )}
+            </div>
+            <p
+              className={clsx(
+                'text-sm',
+                donated
+                  ? 'text-emerald-600 dark:text-emerald-500'
+                  : 'text-zinc-500 dark:text-zinc-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-500'
+              )}
+            >
+              {donationsCount && `${donationsCount} $`}
+            </p>
+          </button>
+        )}
 
-        {isDonatable && <DonateModal manualOpen={isDonationModalOpen} setManualOpen={setIsDonationModalOpen} />}
+        {isDonatable && (
+          <DonateModal
+            manualOpen={isDonationModalOpen}
+            setManualOpen={setIsDonationModalOpen}
+            setDonated={setDonated}
+            id={id}
+            contractId={contractId}
+            endDate={endDate}
+            totalDonationAmount={donationsCount}
+            setDonationsCount={setDonationsCount}
+          />
+        )}
 
         {isParticipatory && (
-          <ParticipateModal manualOpen={isParticipateModalOpen} setManualOpen={setIsParticipateModalOpen} />
+          <ParticipateModal
+            id={id}
+            manualOpen={isParticipateModalOpen}
+            setManualOpen={setIsParticipateModalOpen}
+            participate={participate}
+            setParticipate={setParticipate}
+            participantsCount={participantsCount}
+            setParticipantsCount={setParticipantsCount}
+          />
         )}
 
         {/* participate */}
-        <button
-          className='group flex items-center'
-          onClick={() => authRun(() => setIsParticipateModalOpen(!isParticipateModalOpen))}
-        >
-          <div className='group-hover:bg-blue-600/10 dark:group-hover:bg-blue-500/10 rounded-full '>
-            {participate ? (
-              <MdHandshake className='w-5 h-5 m-1.5 text-blue-600 dark:text-blue-500' />
-            ) : (
-              <MdOutlineHandshake className='w-5 h-5 m-1.5 text-zinc-500 dark:text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-blue-500' />
-            )}
-          </div>
-          <p
-            className={clsx(
-              'text-sm',
-              participate
-                ? 'text-blue-600 dark:text-blue-500'
-                : 'text-zinc-500 dark:text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-blue-500'
-            )}
-          >
-            {totalParticipantCount}
-          </p>
-        </button>
+        {isParticipatory && (
+          <button className='group flex items-center' onClick={() => authRun(() => setIsParticipateModalOpen(true))}>
+            <div className='group-hover:bg-blue-600/10 dark:group-hover:bg-blue-500/10 rounded-full '>
+              {participate ? (
+                <MdHandshake className='w-5 h-5 m-1.5 text-blue-600 dark:text-blue-500' />
+              ) : (
+                <MdOutlineHandshake className='w-5 h-5 m-1.5 text-zinc-500 dark:text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-blue-500' />
+              )}
+            </div>
+            <p
+              className={clsx(
+                'text-sm',
+                participate
+                  ? 'text-blue-600 dark:text-blue-500'
+                  : 'text-zinc-500 dark:text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-blue-500'
+              )}
+            >
+              {participantsCount}
+            </p>
+          </button>
+        )}
 
         {/* like */}
-        <button className='group flex items-center' onClick={() => authRun(() => setLiked(!liked))}>
+        <button className='group flex items-center' onClick={() => authRun(() => handleFollow())}>
           <div className='group-hover:bg-rose-600/10 dark:group-hover:bg-rose-500/10 rounded-full '>
             {liked ? (
               <AiFillHeart className='w-5 h-5 m-1.5 text-rose-600 dark:text-rose-500' />
@@ -208,7 +260,7 @@ const ActionCard = ({
                 : 'text-zinc-500 dark:text-zinc-400 group-hover:text-rose-600 dark:group-hover:text-rose-500'
             )}
           >
-            {totalFollowerCount}
+            {followersCount}
           </p>
         </button>
 

@@ -5,18 +5,32 @@ import { HiX } from 'react-icons/hi'
 import Button from '../Button'
 import { TbLocationFilled } from 'react-icons/tb'
 import { BsFillCalendarWeekFill } from 'react-icons/bs'
+import axios from 'axios'
+import { API_URL } from '@/constants/env'
+import toast from 'react-hot-toast'
 
 const ParticipateModal = ({
   children,
   manualOpen,
   setManualOpen,
+  participate,
+  setParticipate,
+  id,
+  participantsCount,
+  setParticipantsCount,
 }: {
   children?: React.ReactNode
   manualOpen?: boolean
   setManualOpen?: (_open: boolean) => void
+  participate: boolean
+  setParticipate: (_participate: boolean) => void
+  id: string
+  participantsCount: number
+  setParticipantsCount: (_count: number) => void
 }) => {
   const cancelButtonRef = useRef(null)
   const [open, setOpenState] = useState<boolean>(false)
+  const [loading, setLoading] = useState(false)
 
   const setOpen = (state: boolean) => {
     setOpenState(state)
@@ -34,6 +48,33 @@ const ParticipateModal = ({
   const location = 'Marina Beach, chennai, IN'
   const startDate = 'Feb 08, 2021'
   const endDate = 'Feb 10, 2021'
+
+  const handleParticipate = async () => {
+    setLoading(true)
+    if (participate) {
+      try {
+        await axios.post(`${API_URL}/actions/${id}/unparticipate`)
+        setParticipate(false)
+        setParticipantsCount(participantsCount - 1)
+      } catch (err: any) {
+        toast.error(err.response.data.error)
+      } finally {
+        setLoading(false)
+        setOpen(false)
+      }
+    } else {
+      try {
+        await axios.post(`${API_URL}/actions/${id}/participate`)
+        setParticipate(true)
+        setParticipantsCount(participantsCount + 1)
+      } catch (err: any) {
+        toast.error(err.response.data.error)
+      } finally {
+        setLoading(false)
+        setOpen(false)
+      }
+    }
+  }
 
   return (
     <>
@@ -93,7 +134,19 @@ const ParticipateModal = ({
                       </div>
                     </div>
 
-                    <Button className='w-full rounded-sm'>Participate</Button>
+                    <Button className='w-full rounded-sm' onClick={handleParticipate} disabled={loading}>
+                      {loading ? (
+                        <div className='flex items-center justify-center'>
+                          <div
+                            className='inline-block h-4 w-4 mr-2 animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]'
+                            role='status'
+                          />
+                          {participate ? 'Unparticipating...' : 'Participating...'}
+                        </div>
+                      ) : (
+                        <p>{participate ? 'Unparticipate' : 'Participate'}</p>
+                      )}
+                    </Button>
                   </div>
                 </Dialog.Panel>
               </Transition.Child>

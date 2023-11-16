@@ -4,11 +4,45 @@ import GoalHeader from './_components/GoalHeader'
 import SummaryCard from '@/components/SummaryCard'
 import NextLink from './_components/NextLink'
 import Footer from '../../../../components/Footer'
+import { API_URL } from '@/constants/env'
+import { Suspense } from 'react'
+import { StatisticsSectionLoader } from './_components/StatisticsSectionLoader'
 
 async function getTargetData(goalId: number) {
   const res = await fetch(`https://unstats.un.org/sdgapi/v1/sdg/Goal/${goalId}/Target/List?includechildren=true`, {
     cache: 'force-cache',
   })
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch data')
+  }
+
+  return res.json()
+}
+
+async function getGoalData(goalId: number) {
+  const res = await fetch(`${API_URL}/sdgs/${goalId}`, {
+    cache: 'force-cache',
+    next: {
+      tags: ['goalFollow'],
+    },
+  })
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch data')
+  }
+
+  return res.json()
+}
+
+async function getGoalRelatedData(goalId: number) {
+  const res = await fetch(`${API_URL}/sdgs/${goalId}/related-topics`, {
+    next: {
+      revalidate: 60,
+    },
+  })
+
+  console.log(res)
 
   if (!res.ok) {
     throw new Error('Failed to fetch data')
@@ -26,14 +60,26 @@ const SdgGoal = async ({
 }) => {
   let goal = Number(goalId)
 
-  const targetData = await getTargetData(goal)
+  const targetAsync = getTargetData(goal)
+  const goalAsync = getGoalData(goal)
+  const goalRelatedAsync = getGoalRelatedData(goal)
+
+  const [targetData, goalData, goalRelatedData] = await Promise.all([targetAsync, goalAsync, goalRelatedAsync])
+  const news = goalRelatedData.news.slice(0, 2).map((news: any) => ({ ...news, type: 'news' }))
+  const events = goalRelatedData.events.slice(0, 2).map((event: any) => ({ ...event, type: 'event' }))
+  const actions = goalRelatedData.actions.slice(0, 2).map((action: any) => ({ ...action, type: 'action' }))
+  const charities = goalRelatedData.charities.slice(0, 2).map((charity: any) => ({ ...charity, type: 'charity' }))
+  const combinedData = [...news, ...events, ...actions, ...charities]
+  combinedData.sort(() => Math.random() - 0.5)
 
   return (
     <div>
-      <GoalHeader goal={goal} />
+      <GoalHeader goal={goal} isFollowing={goalData.isFollowing} />
 
       <div className='py-20 lg:py-40'>
-        <StatisticsSection goalId={goal} />
+        <Suspense fallback={<StatisticsSectionLoader />}>
+          <StatisticsSection goalId={goal} facts={goalData.facts} />
+        </Suspense>
       </div>
 
       <div className='pt-20 lg:pt-24 bg-gray-200 dark:bg-zinc-800'>
@@ -47,36 +93,15 @@ const SdgGoal = async ({
         <p className='text-2xl md:text-3xl font-bold pb-8  text-gray-900 dark:text-gray-100'>RELATED TOPICS</p>
 
         <div className={`grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6`}>
-          <SummaryCard
-            type='action'
-            heading='Distributing free foods to people in need'
-            image='https://pbs.twimg.com/media/EB_L4EGXUAAq3sU.jpg'
-            clickableCardUrl='/feed/action/1'
-          />
-          <SummaryCard
-            type='news'
-            heading='Modelling Points to Income Redistribution as Strategy for SDG 1'
-            image='https://hub.iisd.org/wp-content/uploads/2020/04/cg-548.jpg'
-            clickableCardUrl='https://sdg.iisd.org/news/modelling-points-to-income-redistribution-as-strategy-for-sdg-1/'
-          />
-          <SummaryCard
-            type='action'
-            heading='Secretly providing blankets to homeless people'
-            image='https://i2.wp.com/www.udayfoundation.org/wp-content/uploads/2017/11/blanket-donation-drive-2017.jpg?w=1224&ssl=1'
-            clickableCardUrl='/feed/action/1'
-          />
-          <SummaryCard
-            type='event'
-            heading='Forests, Trees and Poverty Alleviation in Africa'
-            image='https://hub.iisd.org/wp-content/uploads/2020/04/cg634.jpg'
-            clickableCardUrl='https://sdg.iisd.org/events/forests-trees-and-poverty-alleviation-in-africa/'
-          />
-          <SummaryCard
-            type='event'
-            heading='Pre-Summit of the UN Food Systems Summit 2021'
-            image='https://hub.iisd.org/wp-content/uploads/2020/12/cg-917.jpg'
-            clickableCardUrl='https://sdg.iisd.org/events/pre-summit-of-the-un-food-systems-summit-2021/'
-          />
+          {combinedData.map((feed: any) => (
+            <SummaryCard
+              type={feed.type}
+              key={feed.id}
+              heading={feed.type === 'charity' ? feed.name : feed.title}
+              image={feed.image}
+              clickableCardUrl={feed.type === 'action' ? `/action/${feed.id}` : feed.link}
+            />
+          ))}
         </div>
       </div>
 

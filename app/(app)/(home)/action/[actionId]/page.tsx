@@ -5,7 +5,7 @@ import ActionCard from '../../_components/ActionCard'
 
 async function getData(actionId: string) {
   const res = await fetch(`${API_URL}/actions/${actionId}`, {
-    cache: 'force-cache',
+    cache: 'no-cache',
   })
 
   console.log('calling actionid api')
@@ -32,7 +32,13 @@ const Action = async ({
         <ActionCard {...action} />
       </div>
       <div className='pb-8 pt-6'>
-        <Updates />
+        <Updates
+          withdrawals={action.withdrawals}
+          progress={action.progress}
+          creator={action.creator}
+          currentAmount={action.currentContractValue}
+          isCreator={action.isCreator}
+        />
       </div>
     </div>
   )

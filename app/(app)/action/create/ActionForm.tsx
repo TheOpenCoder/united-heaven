@@ -18,6 +18,11 @@ import { convertAlgosToMicroalgos } from '@/utils/convert'
 import 'react-datepicker/dist/react-datepicker.css'
 import './datePicker.css'
 import * as algokit from '@algorandfoundation/algokit-utils'
+import { useRouter } from 'next/navigation'
+import { revalidateFeed } from '@/app/actions'
+import { API_URL, ALGO_ENV } from '@/constants/env'
+import axios from 'axios'
+import { useAlgo } from '@/context/AlgoContext'
 
 const goalsOption = SDGGoals.map((goal) => ({
   name: goal.name,
@@ -62,6 +67,8 @@ const ActionForm = () => {
   const { colorMode } = useColorMode()
   const { activeAddress, signer } = useWallet()
   const sender = { signer, addr: activeAddress! }
+  const router = useRouter()
+  const { createFakeToken } = useAlgo()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, limit?: number) => {
     const { name, value } = e.target
@@ -178,7 +185,9 @@ const ActionForm = () => {
       await contractClient.create.createApplication({})
 
       // fund action contract
-      await contractClient.appClient.fundAppAccount({ amount: algokit.microAlgos(convertAlgosToMicroalgos(4)) })
+      await contractClient.appClient.fundAppAccount({
+        amount: algokit.microAlgos(convertAlgosToMicroalgos(formData.isDonatable ? 5 : 3)),
+      })
 
       await contractClient.bootstrap(
         {
@@ -194,6 +203,65 @@ const ActionForm = () => {
       )
 
       const appRef = await contractClient.appClient.getAppReference()
+
+      if (ALGO_ENV === 'local') {
+        const fakeToken = await createFakeToken()
+        if (!fakeToken) {
+          toast.error(`Error creating fake token`)
+          return
+        }
+        console.log('created fake token', fakeToken)
+
+        await contractClient.changeTokenAsset(
+          {
+            newTokenAsset: fakeToken,
+          },
+          {
+            sendParams: {
+              fee: algokit.microAlgos(2_000),
+            },
+          }
+        )
+
+        console.log('optin to fake token')
+      }
+
+      const data = JSON.stringify({
+        title: formData.title,
+        description: formData.description,
+        // image: formData.image,
+        image: 'https://picsum.photos/300/200',
+        location: formData.location,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        SDGs: formData.goals,
+        isParticipatory: formData.isParticipatory,
+        isDonatable: formData.isDonatable,
+        maxDonationAmount: Number(formData.amountToRaise),
+        contractId: String(Number(appRef.appId)),
+      })
+
+      let config = {
+        method: 'post',
+        url: `${API_URL}/actions`,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': '*',
+        },
+        data: data,
+      }
+
+      const response = await axios.request(config)
+
+      if (response.status === 200) {
+        toast.success(`Action created successfully`, {
+          id: 'action-create-success',
+        })
+      }
+
+      await revalidateFeed()
+      router.push('/')
     } catch (e) {
       console.log('error', e)
       toast.error(`Something went wrong. Please try again later.`, {

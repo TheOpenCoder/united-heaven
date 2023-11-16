@@ -7,7 +7,13 @@ const config: Config = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  theme: {},
+  theme: {
+    extend: {
+      fontFamily: {
+        ailerons: ['var(--font-ailerons)', 'sans-serif'],
+      },
+    },
+  },
   plugins: [require('@tailwindcss/forms')],
 }
 export default config

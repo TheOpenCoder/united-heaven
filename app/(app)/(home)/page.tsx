@@ -20,18 +20,18 @@ async function getData() {
 
 const page = async () => {
   const data = await getData()
+  const news = data.news.map((news: any) => ({ ...news, type: 'news' }))
+  const events = data.events.map((event: any) => ({ ...event, type: 'event' }))
+  const combinedFeed = [...news, ...events]
+  combinedFeed.sort(() => Math.random() - 0.5)
 
   return (
     <React.Fragment>
       {data.actions.map((action: any) => (
         <ActionCard key={action.id} {...action} />
       ))}
-      {data.news.map((news: any) => (
-        <FeedCard key={news.id} type='news' {...news} />
-      ))}
-
-      {data.events.map((event: any) => (
-        <FeedCard key={event.id} type='event' {...event} />
+      {combinedFeed.map((feed: any) => (
+        <FeedCard key={feed.id} {...feed} />
       ))}
     </React.Fragment>
   )
